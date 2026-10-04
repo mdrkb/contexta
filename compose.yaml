@@ -1,0 +1,59 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    container_name: contexta-qdrant
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6333:6333"  # REST + dashboard
+      - "127.0.0.1:6334:6334"  # gRPC
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/6333'"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # Local embedding model runner. In k8s/prod this is replaced by TEI
+  # serving the same model weights (nomic-ai/nomic-embed-text-v1.5, 768 dim).
+  # Services downstream talk to EMBEDDINGS_URL — the runner is swappable.
+  ollama:
+    image: ollama/ollama:0.12.3
+    container_name: contexta-ollama
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  contexta-mcp:
+    build: ./mcp-server
+    container_name: contexta-mcp
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3333:3333"
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      EMBEDDINGS_API: ollama
+      EMBEDDINGS_URL: http://ollama:11434
+      EMBEDDINGS_MODEL: nomic-embed-text:v1.5
+      COLLECTION: contexta-knowledge
+      VECTOR_SIZE: "768"
+      SEARCH_DEFAULT_LIMIT: "10"
+      MCP_PORT: "3333"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+
+volumes:
+  qdrant_storage:
+  ollama_models:

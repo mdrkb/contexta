@@ -1,0 +1,44 @@
+# Python (mcp-server)
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# Testing / tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Claude Code
+.claude/settings.local.json
+
+# Generated plans and scratch
+plans/
+*.local.md
+
+# Container / local-dev artifacts
+*.pid
+docker-compose.override.yaml
+docker-compose.override.yml
+
+# Env files (sometimes created for local overrides)
+.env
+.env.*
+!.env.example
