@@ -58,6 +58,10 @@ git commit -m "Add KNOWLEDGE.md for contexta"
 
 contexta's indexer runs on a schedule and pulls `KNOWLEDGE.md` from each registered repo — no further action needed from you.
 
+## 5. Push it to contexta now (optional)
+
+If the k8s indexer isn't running yet, or you want your file in Qdrant immediately, index it from Claude Code via the `contexta` MCP server. See [connect-mcp.md](connect-mcp.md#indexing-a-repo-from-claude-code) for the full prompt and argument shape.
+
 ## Updating
 
 Re-run `/contexta-init` whenever something material changes (new component, new dashboard, team handover, significant architecture decision). The skill is diff-aware and will only re-ask what you tell it is stale.

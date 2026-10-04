@@ -62,6 +62,37 @@ Once connected, you can ask Claude Code things like:
 
 - *"Use contexta to find out who's on call for order-api."*
 - *"Which services does contexta currently have indexed?"*
-- *"Read `/path/to/my-service/KNOWLEDGE.md` and upsert it into contexta as repo `my-service`."*
 
 See [how-it-works.md](how-it-works.md) for a walkthrough of what happens under the hood.
+
+## Indexing a repo from Claude Code
+
+The easiest way to push a `KNOWLEDGE.md` into contexta is to let Claude Code call `upsert_knowledge` for you. In a session that has the server connected:
+
+> Read `/path/to/order-api/KNOWLEDGE.md` and upsert it into contexta.
+> Use repo `order-api`, repo_url `https://github.com/you/order-api`,
+> and set git_sha by running `git -C /path/to/order-api rev-parse HEAD`.
+
+What Claude does under the hood:
+
+1. Reads the file.
+2. Shells out for the current git SHA (worth including so you can trace which version of the doc produced any given answer).
+3. Calls the `upsert_knowledge` tool with the four arguments.
+4. Reports back: `{"indexed_chunks": N, "skipped": M, "service_name": "..."}`.
+
+The four arguments:
+
+| Argument | What to use |
+|---|---|
+| `repo` | Short identifier, lowercase, no spaces (e.g. `order-api`). This is what you'll filter on later with `search(repo="order-api")`. |
+| `repo_url` | HTTPS git URL. Stored in payload so answers can link back to source. |
+| `git_sha` | Commit SHA of the `KNOWLEDGE.md` you're indexing. |
+| `markdown` | Full file content. |
+
+`upsert_knowledge` is idempotent: calling it again with the same `repo` replaces all existing chunks for that repo, so re-indexing never produces duplicates or orphan points. See [how-it-works.md](how-it-works.md) for the full write-path walkthrough.
+
+To verify it landed:
+
+> Call contexta's `list_services` tool.
+
+The new `repo` should appear in the result.

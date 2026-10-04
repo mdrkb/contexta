@@ -138,7 +138,11 @@ Do not reorder sections. Do not add new H2s. If the user volunteered information
   - `Still _WIP_: <N>` — subsections the user wants to come back to
   - `Preserved: <N>` — subsections touched by neither interview nor scrape
 - If this was a re-run, offer to show the full diff of the file.
-- Remind the user to commit `KNOWLEDGE.md` so contexta's indexer picks it up on its next sync.
+- Tell the user the next step is **either**:
+  - Commit `KNOWLEDGE.md` and wait for the contexta indexer's next sync (once the k8s indexer exists); **or**
+  - Push it to contexta now via the `contexta` MCP server — point them at `docs/connect-mcp.md` for the one-line Claude Code prompt.
+
+**Do not suggest any follow-up actions beyond these two.** No "run X separately", no graph refreshes, no reindexing commands — the write path for contexta is `commit` and/or `upsert_knowledge`, nothing else. If an action is not described in this `SKILL.md`, it is not part of this workflow.
 
 ## Scope guardrails
 
